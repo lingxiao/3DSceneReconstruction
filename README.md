@@ -1,5 +1,6 @@
 ## GOAL
 
-Body frame alignment
-Real time structure from motion
+- Body frame alignment
+
+- Real time structure from motion
 
