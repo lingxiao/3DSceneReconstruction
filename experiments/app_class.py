@@ -7,9 +7,6 @@
 import os
 import yaml 
 
-############################################################
-# paths
-
 class App:
 
 	def __init__(self):
@@ -31,12 +28,15 @@ class App:
 	def raw_data_paths(self):
 		return [ v for _,v in self.ENV.iteritems() ]
 
+	def image_paths(self):
+		return [ p for p in self.raw_data_paths() if ".jpg" in p or ".png" in p ]
+
 	def data_dir(self):
 		return self.data_root
-		
+
 def get_all_data(data_dir_key, env):
 
-	print('\n\t>> loading all data paths, this will take a minute ...')			
+	print('\n>> loading all data paths, this will take a minute ...')			
 
 	if data_dir_key in env:
 		data_dir = env[data_dir_key]
