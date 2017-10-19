@@ -87,9 +87,9 @@ kp2, des2 = get_feature(img2, plot = False)
 
 
 # for test set image name first
-img2 = img1
-kp2  = kp1
-des2 = des1
+# img2 = img1
+# kp2  = kp1
+# des2 = des1
 
 	# run something on image wrt to self to confirm R = I and r = 0
 bf = BFMatcher(NORM_HAMMING, crossCheck = True)
@@ -99,7 +99,7 @@ matches = bf.match(des1, des2)
 matches = sorted(matches, key = lambda x: x.distance)
 
 # plot for sanity check
-if True:
+if False:
 	img3 = drawMatches(img1,kp1,img2,kp2, matches, None, flags=2)
 	plt.imshow(img3)
 	plt.show()
@@ -114,13 +114,14 @@ pts2 = np.int32([ kp2[n.trainIdx].pt for n in matches ])
 K = np.array([[1043.57, 0.0    , 0.0],
 		     [0.0     , 1043.57, 0.0],
 		     [635.435 , 342.025, 1.0]])
-K = K.T
+
+# K = K.T
 
 # camera intrinsics
 focal = K[0][0]
 cx,cy = K[0][-1], K[1][-1]
 
-E , mask = findEssentialMat(pts1, pts2, focal=1.0  , pp = (0.0,0.0), method = RANSAC, prob = 0.999, threshold = 1.0)
+E , mask = findEssentialMat(pts1, pts2, focal=1.0  , pp = (cx,cy), method = RANSAC, prob = 0.999, threshold = 1.0)
 # E1, mask = findEssentialMat(pts1, pts2, focal=focal, pp = (cx,cy), method = RANSAC, prob = 0.999, threshold = 1.0)
 
 R1,R2,t = decomposeEssentialMat(E)

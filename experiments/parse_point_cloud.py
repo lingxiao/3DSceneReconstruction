@@ -12,7 +12,7 @@ from app_class import App
 ############################################################
 # functions
 
-def process_all_raw(top_dir):
+def process_all_raw():
 
 	app = App()
 
@@ -40,7 +40,7 @@ def process_raw(xs):
 ############################################################
 # run function
 
-process_all_raw(top_dir)
+process_all_raw()
 
 
 
