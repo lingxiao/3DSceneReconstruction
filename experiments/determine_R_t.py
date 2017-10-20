@@ -65,8 +65,8 @@ if False:
 
 # load image
 im_paths = app.image_paths()
-img1     = imread(im_paths[0])
-img2     = imread(im_paths[1])
+img1     = imread(im_paths[1])
+img2     = imread(im_paths[-1])
 
 # @Use: given img :: np.ndarray, output keypoints and orb features
 def get_feature(img, plot = True):
@@ -96,10 +96,9 @@ bf = BFMatcher(NORM_HAMMING, crossCheck = True)
 
 # bruteforce matching of points
 matches = bf.match(des1, des2)
-matches = sorted(matches, key = lambda x: x.distance)
-
+matches = sorted(matches, key = lambda x: x.distance                                            
 # plot for sanity check
-if False:
+if True:
 	img3 = drawMatches(img1,kp1,img2,kp2, matches, None, flags=2)
 	plt.imshow(img3)
 	plt.show()
@@ -111,11 +110,11 @@ pts2 = np.int32([ kp2[n.trainIdx].pt for n in matches ])
 # compute the essential matrix
 
 # scamera intrinsics
-K = np.array([[1043.57, 0.0    , 0.0],
-		     [0.0     , 1043.57, 0.0],
-		     [635.435 , 342.025, 1.0]])
+K = np.array([[1043.57 , 0.0    , 0.0],
+		      [0.0     , 1043.57, 0.0],
+		      [635.435 , 342.025, 1.0]])
 
-# K = K.T
+K = K.T
 
 # camera intrinsics
 focal = K[0][0]
@@ -140,10 +139,8 @@ r2 = rod_vector(R2)
 # note when we try to compute on the thing on itself, R1 is identity as desired, but t is way off by 1/2
 # but is relative anyways?
 
-
 # compute fundamental matrix
 F, mask = findFundamentalMat(pts1, pts2)
-
 
 # # select inlier points
 # pts1 = pts1[ mask.ravel() == 1 ]

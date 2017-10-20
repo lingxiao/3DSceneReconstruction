@@ -36,14 +36,8 @@ def process_raw(xs):
 	raws = [r for r in raws if r]
 	return "\n".join(raws)
 
-
 ############################################################
 # run function
 
 process_all_raw()
-
-
-
-
-
 
