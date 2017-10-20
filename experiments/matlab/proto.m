@@ -19,27 +19,28 @@ addpath(kin_path1, kin_path2, kin_path3)
 row   = 1000;
 col   = 1000;
 depth = 10  ;
-num_points = 30;
+num_points = 1;
 
 % MAKE SYNTHETIC 3D POINT CLOUD
 
 cloud = make_point_cloud(row,col,depth,num_points);
+
+plot_cloud(cloud, 'original point cloud')
 
 % ROTATE 3D POINT CLOUD BY [R|t]
 
 % identity matrix
 R1 = eye(3,3);
 
-cloud_1 = cloud * R1;
+cloud_id = cloud * R1;
 
-% add rotx, roty to path
+% rotate by 5 degrees around x axis
+cloud_x_5 = cloud * rotx(90);
+cloud_y_5 = cloud * roty(5);
+cloud_z_5 = cloud * rotz(5);
 
-% rotate by 5 degrees in x
 
-% rotate by 5 degrees in y
-
-% rotate by 5 degrees in z
-
+plot_cloud(cloud_x_5, 'cloud rotated by 5 degrees about x')
 
 % rotate by 10 degrees
 
