@@ -1,5 +1,5 @@
 
-% @USE: given n x 3 matrix of point cloud, plot as vectors
+% USE: given n x 3 matrix of point cloud, plot as vectors
 
 function m = plot_cloud(cloud, title_xs)
 
@@ -18,3 +18,4 @@ function m = plot_cloud(cloud, title_xs)
 	hold off;
 
 end
+
