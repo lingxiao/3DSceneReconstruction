@@ -36,7 +36,7 @@ def load_cloud(path):
 
 	xs = [x for x,_,_ in cloud]
 	ys = [y for _,y,_ in cloud]
-	zs = [z for _,_,z in cloud]
+ 	zs = [z for _,_,z in cloud]
 
 	return xs, ys, zs
 
@@ -96,9 +96,10 @@ bf = BFMatcher(NORM_HAMMING, crossCheck = True)
 
 # bruteforce matching of points
 matches = bf.match(des1, des2)
-matches = sorted(matches, key = lambda x: x.distance                                            
+matches = sorted(matches, key = lambda x: x.distance)
 # plot for sanity check
-if True:
+
+if False:
 	img3 = drawMatches(img1,kp1,img2,kp2, matches, None, flags=2)
 	plt.imshow(img3)
 	plt.show()
