@@ -18,7 +18,6 @@ kin_path2 = '/Users/lingxiao/Documents/Spectrum/3DSceneReconstruction/experiment
 kin_path3 = '/Users/lingxiao/Documents/Spectrum/3DSceneReconstruction/experiments/matlab/kinematics/kinematics/utils';
 kin_path4 = '/Users/lingxiao/Documents/Spectrum/3DSceneReconstruction/experiments/matlab/F_computation_v1';
 
-
 addpath(kin_path1, kin_path2, kin_path3, kin_path4);
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
@@ -57,27 +56,8 @@ point_cloud = [[0 0 1]
 Ro = eye  (3,3);
 to = zeros(3,1);
 
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% START HERE
-% 
-% roty seem to act up in a lot of tests for some reason ...
-% strategy: make sure this works before packaging
-% things up into a top level function
-% it makes sense to think about what's going on geometrically
-% and reason from there
-% I think when you rotate around y, the point should
-% be no longer visible, so some of this stuff
-% might not make sense
-
-% run through all the functions so far, clean them
-% up and figure out why roty act so weird
-
-R1 = roty(pi/2);
+R1 = rotx(pi/4);
 t1 = [1 1 1]';    % <- the essential matrix is changing wrt this
-
-% START HERE
-% 
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 
 % 2. project point cloud onto image plane
 
@@ -113,9 +93,18 @@ assert_S_1_1_0 = lambda_S(1) - lambda_S(2) < 1e-10;
 % verify it satisifies epipolar constraints
 % pick two image points and verify yEy' = 0
 
-assert_E_correct = [assert_zero_det assert_zero_det assert_UV_1 assert_S_1_1_0];
+assert_E_correct = [];
 
 for k = 1:row
+	y1 = [ im_points_1(k,:) 1 ] * inv(intrinsicMatrix');
+	y2 = [ im_points_2(k,:) 1 ] * inv(intrinsicMatrix');
+
+	% this is only zero when rotation = Identity
+	% this is failing right now for all other cases
+	assert_epipole_constraint = y2 * E * y1' < 1e-10;
+
+	% right now all tests pass so our Essential matrix is correct
+	assert_E_correct(end+1) = all([assert_zero_det assert_zero_det assert_UV_1 assert_S_1_1_0 assert_epipole_constraint]);
 end
 
 % so we know the Essential matrix we constructed must be true
@@ -131,7 +120,30 @@ assert_EssentialMat_correct_for_all_points_in_cloud = all(assert_E_correct)
 %   2. assert matlab function behave as expected
 %   3. if not, just use hand coded thing in your experiment
 
-[R1_hat_1, R1_hat_2, t1_hat_1, t1_hat_2] = determine_Rt_from_E(E);
+[U S V] = svd(E);
+
+W = [ [0 -1 0];
+	  [1  0 0];
+	  [0  0 1]];
+
+Z = [[0  1 0];
+     [-1 0 0];
+     [0  0 0]
+    ];
+
+
+% find two possible rotation matrices 
+R1_hat_1 = U * W' * V';
+R1_hat_2 = U * W * V';
+
+% find possible S so that E = SR
+S1 = (-1*U)*Z*U';
+S2 = U*Z*U';
+
+% now we can get translation up to scale
+t1_hat_1 = unskew(S1);
+t1_hat_2 = unskew(S2);
+
 
 % check test -> so we have two rotation candidates, now we need
 % a translation up to scale and pick out the right [R|t]                                                               
@@ -140,42 +152,28 @@ checkSol_2 = all(all(R1 - R1_hat_2 < 1e-10));
 
 assert_rotation_sol_exists = any([checkSol_1, checkSol_2])
 
-check_trans_1 = assert_constant_multiple(t1_hat_1, t1');
-check_trans_2 = assert_constant_multiple(t1_hat_2, t1');
-
-assert_trans_sol_exists = any([check_trans_1, check_trans_2])
-
-% now we need to pick the sensible solution:
-% we have to test location of a 3D point using 
-% each of the four possible solutions
-
-% 1. First run it on the actual [R|t] and see if you can
-%    recover (x,y,z) to scale
-k = 3;
-point_1 = im_points_1(k,:);
-point_2 = im_points_2(k,:);
-
-% this is used for debugging only, take out later
-xyz = corresponding_point_to_3D(point_1, point_2, intrinsicMatrix, R1, t1)
-
-% conclusion: passed the test with true [R1|t1]
-assert_constant_multiple_xyz = assert_constant_multiple(point_cloud(k,:), xyz')
-
-% get the final rotation and translation
-Rt = pick_sensible_Rt(point_1,point_2, intrinsicMatrix, R1_hat_1, R1_hat_2, t1_hat_1, t1_hat_2)
-
-% these should be correct
-rotateMat = Rt(:,1:3)
-transVec  = Rt(:,4)
-
- 
-
-
-
+% now we have four possible [R|t], we need to get the right pair
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %  Estimate Essential Matrix from Point Correspondances   %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+matched_points_1 = cornerPoints(im_points_1);
+matched_points_2 = cornerPoints(im_points_2);
+
+% This is way wrong <- need to figure out how to debug this .. either do 8 point thing manually 
+% 	- using the wrong function
+%   - the points are passed in incorrectly
+%   - one solution: check using manual method and see if it's the same thing
+[E_hat, inliers, status] = estimateEssentialMatrix(matched_points_1, matched_points_1, camParam)
+
+% try the solution: implement 8 point algorithm manually
+% strategy:
+% 	- run thing off of github
+% 	- make sure you understand how it works and it works for your problem
+%   - make sure you understand how the data is passed in, format of matrices etc
+% 	- run it on my problem and see how it works -> it should be lamda * E, and should not be E_hat
+
 
 % 8-point algorithm summary.
 % determine the fundamental matrix from the constraint:
@@ -199,56 +197,14 @@ transVec  = Rt(:,4)
 x1 = [im_points_1'; ones(1,row)];
 x2 = [im_points_2'; ones(1,row)];
 
-% so this one runs, now we need to make sure it outputs as intended
-% ways to test it:
-% 	1. run it on out of box data
-%  	2. get essential matrix out of F and compare
-%   3. 
-F_algebraic = det_F_algebraic(x1,x1);
-F_gold      = det_F_gold(x1,x2, 1, 1);
-F_8point    = det_F_normalized_8point(x1,x2);
+F = det_F_algebraic(x1,x2);
 
-% we see this does not make any sense. 
-K = intrinsicMatrix;
 
-% this one does not work
-E_algebraic = K'* F_algebraic *K;
 
-% these two work up to the same scale when we normalize the F_gold
-E_gold   = K'* F_gold *K;
-E_8point = K'* F_8point *K;
 
-% 8 point algorithm has the right signs wrt Rotation matrix
-[R_gold_1, R_gold_2, t_gold_1, t_gold_2]         = determine_Rt_from_E(E_gold);
-[R_8point_1, R_8point_2, t_8point_1, t_8point_2] = determine_Rt_from_E(E_8point);
 
-% write some one off test to see that 8point is correct for all inputs
-% what we see is that the soln is somewhere, but different depending
-% on rot_ and degree of rotation
 
-% NEED TODO: determine which [R|t] to pick from the decomposition
-%            determine which one of gold or 8point to pick
-assert_8point_rotation_1 = R1 ./ R_8point_1;
-assert_8point_rotation_2 = R1 ./ R_8point_2;
 
-% % % % % % % % % % % % % % % % % % %
-%    Point cloud feature matching   %
-% % % % % % % % % % % % % % % % % % % 
-
-% After fixing the [R|t] ambiguity
-
-% now run the pipeline with point correspondances on wild images
-
-% % % % % % % % % % % % % % % % % % % % % % %  SUSPECT % % % % % % % % % % % % % % % % % % % % % % % % 
-
-% matched_points_1 = cornerPoints(im_points_1);
-% matched_points_2 = cornerPoints(im_points_2);
-
-% This is way wrong <- need to figure out how to debug this .. either do 8 point thing manually 
-% 	- using the wrong function
-%   - the points are passed in incorrectly
-%   - one solution: check using manual method and see if it's the same thing
-% [E_hat, inliers, status] = estimateEssentialMatrix(matched_points_1, matched_points_1, camParam)
 
 
 % now we have need to estimate the Essential matrix from corresponding points, 
@@ -286,3 +242,33 @@ assert_8point_rotation_2 = R1 ./ R_8point_2;
 % 9. Run the process for multiple [R|t] randomized on randomized point cloud
 
 % RUN THROUGH THE PIPELINE BELOW WHERE PROJECTED POINTS ARE DEFINED TO BE MATCHED
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
