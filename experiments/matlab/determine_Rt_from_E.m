@@ -1,7 +1,6 @@
 % 
 % @Use: Determine two rotation and translation from Essential Matrix
 % 
-% 
 function [R1, R2, t1, t2] =  determine_Rt_from_E(E)
 
 	[U S V] = svd(E);

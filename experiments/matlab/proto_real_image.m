@@ -81,7 +81,7 @@ showMatchedFeatures(I1, I2, matchedPoints1, matchedPoints2);
 title('Tracked Features');
 
 % % % % % % % % % % % % % % % % % % % % % %
-%    Determine [R|t] using image features
+%    Determine [R|t] using image features %
 % % % % % % % % % % % % % % % % % % % % % %
 
 % Estimate the fundamental matrix
@@ -99,27 +99,6 @@ title('Epipolar Inliers');
 
 % note, rotation correct, translation is incorrect
 [orient, loc] = relativeCameraPose(E, cameraParams, inlierPoints1, inlierPoints2);
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
