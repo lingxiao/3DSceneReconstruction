@@ -97,7 +97,7 @@ E_8point = K'* F_8point * K;
 
 assert_R8_correct = all(all(R - R8 < 1e-10));
 assert_t8_correct = assert_constant_multiple(t, t8');
-
+  
 assert_Rt_from_8point_correct = all([ assert_R8_correct, assert_t8_correct ])
 
 % % % % % % % % % % % % % % % % % % %

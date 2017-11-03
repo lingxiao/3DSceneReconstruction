@@ -25,8 +25,8 @@ addpath(kin_path1, kin_path2, kin_path3, kin_path4);
 
 data_dir = '/Users/lingxiao/Documents/Spectrum/3DSceneReconstruction/data/';
 
-image_1 = imread(strcat(data_dir, 'scene_2_1.jpg'));
-image_2 = imread(strcat(data_dir, 'scene_2_2.jpg'));
+image_1 = imread(strcat(data_dir, 'scene_1_1.jpg'));
+image_2 = imread(strcat(data_dir, 'scene_1_2.jpg'));
 
 % % % % % % % % % % % % % % % % % %
 %  		Camera Paramers           %
@@ -42,8 +42,15 @@ cameraParams = cameraParameters( 'IntrinsicMatrix', K');
 %  	Recover [I|0] from identity image   %
 % % % % % % % % % % % % % % % % % % % % %
 
+% the question is how to test this ...
+% problem: we don't have ground truth.
+% we need to test what is the best
+% kind of features to use to get the alignment
+% if none available, we can start incorporating
+% accelerameter data as anothony suggested
 I1 = image_1;
-I2 = image_1;
+I2 = image_2;
+
 
 % determine correspondances between points
 imagePoints1 = detectMinEigenFeatures(rgb2gray(I1), 'MinQuality', 0.1);
@@ -74,7 +81,7 @@ showMatchedFeatures(I1, I2, matchedPoints1, matchedPoints2);
 title('Tracked Features');
 
 % % % % % % % % % % % % % % % % % % % % % %
-%    Determine [R|t] using matlab method  %
+%    Determine [R|t] using image features
 % % % % % % % % % % % % % % % % % % % % % %
 
 % Estimate the fundamental matrix
@@ -92,13 +99,7 @@ title('Epipolar Inliers');
 
 % note, rotation correct, translation is incorrect
 [orient, loc] = relativeCameraPose(E, cameraParams, inlierPoints1, inlierPoints2);
-
-
-
-
-
-
-
+	
 
 
 
