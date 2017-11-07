@@ -12,12 +12,10 @@ clear all;
 %  		ADD ROBOTICS PACKAGE PATH           %
 % % % % % % % % % % % % % % % % % % % % % % %
 
-
 kin_path1 = '/Users/lingxiao/Documents/Spectrum/3DSceneReconstruction/experiments/matlab/kinematics/kinematics/robotlinks';
 kin_path2 = '/Users/lingxiao/Documents/Spectrum/3DSceneReconstruction/experiments/matlab/kinematics/kinematics/screws';
 kin_path3 = '/Users/lingxiao/Documents/Spectrum/3DSceneReconstruction/experiments/matlab/kinematics/kinematics/utils';
 kin_path4 = '/Users/lingxiao/Documents/Spectrum/3DSceneReconstruction/experiments/matlab/F_computation_v1';
-
 
 addpath(kin_path1, kin_path2, kin_path3, kin_path4);
 

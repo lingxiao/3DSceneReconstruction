@@ -23,7 +23,7 @@ addpath(kin_path1, kin_path2, kin_path3, kin_path4);
 %  		Load sample images        %
 % % % % % % % % % % % % % % % % % %
 
-data_dir = '/Users/lingxiao/Documents/Spectrum/3DSceneReconstruction/data/';
+data_dir = '/Users/lingxiao/Documents/Spectrum/3DSceneReconstruction/data/images/';
 
 image_1 = imread(strcat(data_dir, 'scene_1_1.jpg'));
 image_2 = imread(strcat(data_dir, 'scene_1_2.jpg'));
@@ -36,7 +36,7 @@ K = [1043.57  0.0      0.0;
      0.0      1043.57  0.0; 
      639.436  341.257  1.0]';
 
-cameraParams = cameraParameters( 'IntrinsicMatrix', K');
+cameraParams = cameraParameters( 'IntrinsicMatrix', K' );
 
 % % % % % % % % % % % % % % % % % % % % %
 %  	Recover [I|0] from identity image   %
@@ -51,12 +51,11 @@ cameraParams = cameraParameters( 'IntrinsicMatrix', K');
 I1 = image_1;
 I2 = image_2;
 
-
 % determine correspondances between points
 imagePoints1 = detectMinEigenFeatures(rgb2gray(I1), 'MinQuality', 0.1);
 imagePoints2 = detectMinEigenFeatures(rgb2gray(I2), 'MinQuality', 0.1);
 
-% % Visualize detected points
+% Visualize detected points
 figure
 imshow(I1, 'InitialMagnification', 50);
 title('150 Strongest Corners from the First Image');
@@ -75,14 +74,15 @@ initialize(tracker, imagePoints1, I1);
 matchedPoints1 = imagePoints1(validIdx, :);
 matchedPoints2 = imagePoints2(validIdx, :);
 
+
 % Visualize correspondences
 figure
 showMatchedFeatures(I1, I2, matchedPoints1, matchedPoints2);
 title('Tracked Features');
 
-% % % % % % % % % % % % % % % % % % % % % %
-%    Determine [R|t] using image features %
-% % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+%    Determine [R|t] using image features     %
+% % % % % % % % % % % % % % % % % % % % % % % %
 
 % Estimate the fundamental matrix
 [E, epipolarInliers] = estimateEssentialMatrix(...
@@ -99,6 +99,8 @@ title('Epipolar Inliers');
 
 % note, rotation correct, translation is incorrect
 [orient, loc] = relativeCameraPose(E, cameraParams, inlierPoints1, inlierPoints2);
+
+
 
 
 
